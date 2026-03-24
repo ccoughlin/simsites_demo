@@ -12,6 +12,8 @@
   const previewUnavailable  = document.getElementById('preview-unavailable');
   const scoreThumbnailWrap  = document.getElementById('score-thumbnail-wrap');
   const scoreThumbnail      = document.getElementById('score-thumbnail');
+  const similarityBar       = document.getElementById('similarity-bar');
+  const similarityValue     = document.getElementById('similarity-value');
   const tabBtns        = document.querySelectorAll('.tab-btn');
 
   let allHints = [];
@@ -71,6 +73,14 @@
       pageScreenshot.hidden = true;
       previewUnavailable.hidden = false;
       scoreThumbnailWrap.hidden = true;
+    }
+
+    // Semantic similarity
+    if (data.semantic_similarity != null) {
+      const pct = Math.round(data.semantic_similarity * 100);
+      similarityBar.style.width = `${pct}%`;
+      similarityBar.className = 'ai-metric-bar ' + scoreClass(pct);
+      similarityValue.textContent = `${pct} / 100`;
     }
 
     // Hints

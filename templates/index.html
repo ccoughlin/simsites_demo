@@ -71,7 +71,28 @@
         </div>
 
         <div id="tab-ai" class="tab-panel" hidden>
-          <p class="coming-soon">AI-powered recommendations coming soon!</p>
+          <div class="ai-metric">
+            <h3>Semantic Similarity</h3>
+            <p class="ai-metric-description">How closely the page content relates to your search query.</p>
+            <div class="ai-metric-bar-wrap">
+              <div id="similarity-bar" class="ai-metric-bar"></div>
+            </div>
+            <p id="similarity-value" class="ai-metric-value"></p>
+            <dl class="similarity-legend">
+              <div class="similarity-legend-row">
+                <dt>0</dt>
+                <dd>The page contents and the query are completely unrelated.</dd>
+              </div>
+              <div class="similarity-legend-row">
+                <dt>50</dt>
+                <dd>The page contents and the query are loosely related.</dd>
+              </div>
+              <div class="similarity-legend-row">
+                <dt>100</dt>
+                <dd>The page contents and the query are identical in meaning.</dd>
+              </div>
+            </dl>
+          </div>
         </div>
 
         <div id="tab-preview" class="tab-panel" hidden>

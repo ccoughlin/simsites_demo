@@ -20,3 +20,4 @@ class AnalyzeResponse(BaseModel):
     score: int  # 0–100
     hints: list[SEOHint]
     page_image: str | None = None  # base64-encoded PNG screenshot
+    semantic_similarity: float | None = None  # [0, 1] content vs. query

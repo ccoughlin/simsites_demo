@@ -4,12 +4,11 @@ SEO analysis service.
 Fetch the target URL and evaluate common on-page SEO signals relative to the
 supplied search query.  Each check returns one or more SEOHint objects; the
 final score is a simple weighted roll-up.
-
-TODO: replace stub implementations with real logic.
 """
 
 import asyncio
 import base64
+import json
 import logging
 
 import httpx
@@ -17,6 +16,7 @@ from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 
 from models.seo import AnalyzeResponse, SEOHint
+from services.ai import compute_similarity
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ async def analyze(url: str, search_query: str) -> AnalyzeResponse:
     response.raise_for_status()
     html = response.text
 
-    async def _run_checks() -> tuple[list[SEOHint], int]:
+    async def _run_checks() -> tuple[list[SEOHint], int, float | None]:
         soup = BeautifulSoup(html, 'html.parser')
         hints: list[SEOHint] = []
         hints += _check_title(soup, search_query)
@@ -37,14 +37,22 @@ async def analyze(url: str, search_query: str) -> AnalyzeResponse:
         hints += _check_images(soup)
         hints += _check_canonical(soup, url)
         hints += _check_structured_data(soup)
-        return hints, _compute_score(hints)
+        similarity = await asyncio.to_thread(compute_similarity, soup.get_text(), search_query)
+        return hints, _compute_score(hints), similarity
 
-    (hints, score), page_image = await asyncio.gather(
+    (hints, score, semantic_similarity), page_image = await asyncio.gather(
         _run_checks(),
         get_page_image(url),
     )
 
-    return AnalyzeResponse(url=url, search_query=search_query, score=score, hints=hints, page_image=page_image)
+    return AnalyzeResponse(
+        url=url,
+        search_query=search_query,
+        score=score,
+        hints=hints,
+        page_image=page_image,
+        semantic_similarity=semantic_similarity,
+    )
 
 
 async def get_page_image(url: str) -> str | None:
@@ -213,8 +221,37 @@ def _check_canonical(soup: BeautifulSoup, url: str) -> list[SEOHint]:
 
 def _check_structured_data(soup: BeautifulSoup) -> list[SEOHint]:
     """Check for JSON-LD or microdata structured data markup."""
-    # TODO: implement
-    return []
+    hints = list()
+    tag = soup.find("script", attrs={"type": "application/ld+json"})
+    try:
+        json_ld_data = json.loads(tag.string) if tag else None
+        if not json_ld_data:
+            hints.append(SEOHint(
+                category='structured_data',
+                severity='info',
+                message='No JSON-LD found',
+                recommendation='Consider adding structured data to the page - it can help search engines understand your content'
+            ))
+    except json.JSONDecodeError:
+        hints.append(SEOHint(
+            category='structured_data',
+            severity='critical',
+            message='Possibly invalid JSON-LD',
+            recommendation='Failed to parse the JSON-LD payload, double-check to ensure validity'
+        ))
+    has_microdata = bool(soup.find(attrs={"itemscope": True}))
+    if has_microdata:
+        hints.append(SEOHint(
+            category='structured_data',
+            severity='info',
+            message='Consider switching to JSON-LD',
+            recommendation=(
+                "Consider replacing the microdata with JSON-LD: it's easier to maintain "
+                "since it's separate from the HTML structure, and it's "
+                "simpler to parse programmatically."
+            )
+        ))
+    return hints
 
 
 # ---------------------------------------------------------------------------
