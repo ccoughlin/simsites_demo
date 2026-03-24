@@ -37,7 +37,3 @@ static/js/app.js
 1. Add a `_check_<name>(soup, ...)` function in `services/seo_analyzer.py` that returns `list[SEOHint]`.
 2. Call it inside `_run_checks()` in `analyze()`.
 3. If the check needs a new `category` value, add it to the `Literal` in `models/seo.py`.
-
-## Virtual environment
-
-The venv lives in `seodemo/` and is excluded from version control via `.gitignore`.
