@@ -140,25 +140,33 @@ button[type="submit"]:disabled { background: #a0aec0; cursor: not-allowed; }
 /* ── Hint groups (All view) ── */
 .hint-group { display: flex; flex-direction: column; gap: 0.5rem; }
 
-.hint-group-toggle {
+.hint-group-header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.4rem 0;
-  width: 100%;
-  text-align: left;
+  padding: 0.25rem 0;
 }
+
 .hint-group-count {
   font-size: 0.8rem;
   color: #718096;
   font-weight: 600;
 }
-.hint-group-chevron { font-size: 0.85rem; color: #718096; margin-left: auto; }
 
-.hint-group-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; padding-left: 0.5rem; }
+.hint-group-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 0.25rem 0.25rem 0.25rem 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 transparent;
+}
+.hint-group-list::-webkit-scrollbar { width: 6px; }
+.hint-group-list::-webkit-scrollbar-track { background: transparent; }
+.hint-group-list::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 3px; }
 
 .hint-item {
   border-left: 4px solid #cbd5e0;

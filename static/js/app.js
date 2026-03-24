@@ -93,23 +93,16 @@
         const section = document.createElement('li');
         section.className = 'hint-group';
         section.innerHTML = `
-          <button class="hint-group-toggle ${sev}" aria-expanded="true">
+          <div class="hint-group-header">
             <span class="hint-badge ${sev}">${_severityLabel[sev]}</span>
-            <span class="hint-group-count">${groups[sev].length}</span>
-            <span class="hint-group-chevron">▾</span>
-          </button>
-          <ul class="hint-group-list"></ul>
+            <span class="hint-group-count">${groups[sev].length} hint${groups[sev].length !== 1 ? 's' : ''}</span>
+          </div>
         `;
-        const groupList = section.querySelector('.hint-group-list');
-        groups[sev].forEach(hint => groupList.appendChild(makeHintItem(hint)));
 
-        section.querySelector('.hint-group-toggle').addEventListener('click', (e) => {
-          const btn = e.currentTarget;
-          const expanded = btn.getAttribute('aria-expanded') === 'true';
-          btn.setAttribute('aria-expanded', String(!expanded));
-          groupList.hidden = expanded;
-          btn.querySelector('.hint-group-chevron').textContent = expanded ? '▸' : '▾';
-        });
+        const groupList = document.createElement('ul');
+        groupList.className = 'hint-group-list';
+        groups[sev].forEach(hint => groupList.appendChild(makeHintItem(hint)));
+        section.appendChild(groupList);
 
         hintsList.appendChild(section);
       });
