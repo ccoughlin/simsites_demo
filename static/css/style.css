@@ -79,7 +79,22 @@ button[type="submit"]:disabled { background: #a0aec0; cursor: not-allowed; }
 }
 
 /* ── Score ── */
-.score-card { text-align: center; }
+.score-card {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+#score-thumbnail-wrap {
+  flex-shrink: 0;
+  width: 160px;
+}
+#score-thumbnail {
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  display: block;
+}
+#score-text { flex: 1; text-align: center; }
 .score-card h2 { margin-bottom: 0.5rem; }
 .score {
   font-size: 4rem;

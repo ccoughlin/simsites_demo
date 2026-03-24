@@ -10,6 +10,8 @@
   const filterBtns     = document.querySelectorAll('.filter-btn');
   const pageScreenshot      = document.getElementById('page-screenshot');
   const previewUnavailable  = document.getElementById('preview-unavailable');
+  const scoreThumbnailWrap  = document.getElementById('score-thumbnail-wrap');
+  const scoreThumbnail      = document.getElementById('score-thumbnail');
   const tabBtns        = document.querySelectorAll('.tab-btn');
 
   let allHints = [];
@@ -59,12 +61,16 @@
 
     // Screenshot
     if (data.page_image) {
-      pageScreenshot.src = `data:image/png;base64,${data.page_image}`;
+      const src = `data:image/png;base64,${data.page_image}`;
+      pageScreenshot.src = src;
       pageScreenshot.hidden = false;
       previewUnavailable.hidden = true;
+      scoreThumbnail.src = src;
+      scoreThumbnailWrap.hidden = false;
     } else {
       pageScreenshot.hidden = true;
       previewUnavailable.hidden = false;
+      scoreThumbnailWrap.hidden = true;
     }
 
     // Hints
