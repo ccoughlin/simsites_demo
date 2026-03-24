@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEO Demo</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>SEO Demo</h1>
+    <p class="tagline">Enter a website URL and your target search query to get actionable SEO hints.</p>
+  </header>
+
+  <main>
+    <section class="card" id="input-section">
+      <form id="analyze-form">
+        <div class="form-row">
+          <div class="field">
+            <label for="url">Website URL</label>
+            <input
+              id="url"
+              name="url"
+              type="url"
+              placeholder="https://example.com"
+              required
+            />
+          </div>
+          <div class="field">
+            <label for="query">Target Search Query</label>
+            <input
+              id="query"
+              name="search_query"
+              type="text"
+              placeholder="best running shoes for beginners"
+              required
+            />
+          </div>
+        </div>
+        <button type="submit" id="submit-btn">Analyze</button>
+      </form>
+    </section>
+
+    <section id="results-section" hidden>
+      <div class="score-card card">
+        <h2>SEO Score</h2>
+        <div id="score-display" class="score">--</div>
+        <p id="score-label"></p>
+      </div>
+
+      <div class="card" id="detail-card">
+        <div id="tab-bar">
+          <button class="tab-btn active" data-tab="hints">Hints</button>
+          <button class="tab-btn" data-tab="ai">AI</button>
+          <button class="tab-btn" data-tab="preview">Page Preview</button>
+        </div>
+
+        <div id="tab-hints" class="tab-panel">
+          <div id="filter-bar">
+            <button class="filter-btn active" data-severity="all">All</button>
+            <button class="filter-btn" data-severity="critical">Critical</button>
+            <button class="filter-btn" data-severity="warning">Warning</button>
+            <button class="filter-btn" data-severity="info">Info</button>
+          </div>
+          <ul id="hints-list"></ul>
+        </div>
+
+        <div id="tab-ai" class="tab-panel" hidden>
+          <p class="coming-soon">AI-powered recommendations coming soon!</p>
+        </div>
+
+        <div id="tab-preview" class="tab-panel" hidden>
+          <img id="page-screenshot" src="" alt="Page screenshot" />
+          <p id="preview-unavailable" class="coming-soon" hidden>Page preview unavailable.</p>
+        </div>
+      </div>
+    </section>
+
+    <div id="error-banner" class="error-banner" hidden></div>
+    <div id="loading" class="loading" hidden>Analyzing&hellip;</div>
+  </main>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
