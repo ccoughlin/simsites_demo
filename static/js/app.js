@@ -16,10 +16,12 @@
   const similarityValue     = document.getElementById('similarity-value');
   const relevanceBar        = document.getElementById('relevance-bar');
   const relevanceValue      = document.getElementById('relevance-value');
-  const competitorsList     = document.getElementById('competitors-list');
-  const competitorsEmpty    = document.getElementById('competitors-empty');
-  const competitionSummary  = document.getElementById('competition-summary');
+  const competitorsList        = document.getElementById('competitors-list');
+  const competitorsEmpty       = document.getElementById('competitors-empty');
+  const competitorsHeading     = document.getElementById('competitors-heading');
+  const competitionSummary     = document.getElementById('competition-summary');
   const competitionSummaryText = document.getElementById('competition-summary-text');
+  const competitionUnavailable = document.getElementById('competition-unavailable');
   const tabBtns        = document.querySelectorAll('.tab-btn');
 
   let allHints = [];
@@ -98,7 +100,7 @@
     }
 
     // Competitors
-    renderCompetitors(data.competitors ?? [], data.competition_summary ?? null);
+    renderCompetitors(data.competitors ?? [], data.competition_summary ?? null, data.competition_unavailable ?? null);
 
     // Hints
     renderHints('all');
@@ -167,7 +169,18 @@
     return li;
   }
 
-  function renderCompetitors(results, summary) {
+  function renderCompetitors(results, summary, unavailable) {
+    if (unavailable) {
+      competitionUnavailable.textContent = unavailable;
+      competitionUnavailable.hidden = false;
+      competitionSummary.hidden = true;
+      competitorsHeading.hidden = true;
+      competitorsList.hidden = true;
+      competitorsEmpty.hidden = true;
+      return;
+    }
+    competitionUnavailable.hidden = true;
+
     if (summary) {
       competitionSummaryText.textContent = summary;
       competitionSummary.hidden = false;
@@ -175,6 +188,7 @@
       competitionSummary.hidden = true;
     }
 
+    competitorsHeading.hidden = false;
     competitorsList.innerHTML = '';
     if (results.length === 0) {
       competitorsEmpty.hidden = false;

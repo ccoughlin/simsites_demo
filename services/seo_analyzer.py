@@ -17,7 +17,7 @@ from playwright.async_api import async_playwright
 
 from models.seo import AnalyzeResponse, CompetitorResult, SEOHint
 from services.ai import compute_similarity, compute_relevance_score
-from services.llm import explain_relevance, search
+from services.llm import DEFAULT_KEY, TAVILY_KEY, explain_relevance, search
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +44,28 @@ async def analyze(url: str, search_query: str) -> AnalyzeResponse:
             asyncio.to_thread(compute_relevance_score, page_text, search_query),
         )
         return hints, _compute_score(hints), similarity, rel_score
+
+    missing_keys = [k for k, v in [("TAVILY_API_KEY", TAVILY_KEY), ("LLM_API_KEY", DEFAULT_KEY)] if not v]
+
+    if missing_keys:
+        (hints, score, semantic_similarity, relevance_score), page_image = await asyncio.gather(
+            _run_checks(),
+            get_page_image(url),
+        )
+        return AnalyzeResponse(
+            url=url,
+            search_query=search_query,
+            score=score,
+            hints=hints,
+            page_image=page_image,
+            semantic_similarity=semantic_similarity,
+            relevance_score=relevance_score,
+            competition_unavailable=(
+                f"Competition analysis is unavailable — the following environment "
+                f"variable{'s are' if len(missing_keys) > 1 else ' is'} not set: "
+                f"{', '.join(missing_keys)}."
+            ),
+        )
 
     (hints, score, semantic_similarity, relevance_score), page_image, competitor_dicts = (
         await asyncio.gather(

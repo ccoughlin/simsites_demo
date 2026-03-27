@@ -257,6 +257,14 @@ button[type="submit"]:disabled { background: #a0aec0; cursor: not-allowed; }
 .hint-recommendation { font-size: 0.88rem; color: #4a5568; }
 
 /* ── Competition tab ── */
+.competition-unavailable {
+  background: #fffbeb;
+  border: 1px solid #fbd38d;
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  font-size: 0.88rem;
+  color: #744210;
+}
 .competition-summary {
   background: #ebf8ff;
   border: 1px solid #bee3f8;

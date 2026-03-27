@@ -31,3 +31,4 @@ class AnalyzeResponse(BaseModel):
     relevance_score: float | None = None      # [0, 1] weighted chunk relevance
     competitors: list[CompetitorResult] = []
     competition_summary: str | None = None
+    competition_unavailable: str | None = None  # set when API keys are missing
