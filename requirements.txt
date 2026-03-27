@@ -7,3 +7,4 @@ pydantic==2.12.5
 beautifulsoup4==4.14.3
 playwright==1.58.0
 fastembed==0.8.0
+tavily-python==0.7.23

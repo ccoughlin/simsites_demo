@@ -14,6 +14,13 @@ class SEOHint(BaseModel):
     recommendation: str
 
 
+class CompetitorResult(BaseModel):
+    url: str
+    title: str
+    content: str
+    score: float | None = None
+
+
 class AnalyzeResponse(BaseModel):
     url: str
     search_query: str
@@ -22,3 +29,5 @@ class AnalyzeResponse(BaseModel):
     page_image: str | None = None  # base64-encoded PNG screenshot
     semantic_similarity: float | None = None  # [0, 1] content vs. query
     relevance_score: float | None = None      # [0, 1] weighted chunk relevance
+    competitors: list[CompetitorResult] = []
+    competition_summary: str | None = None

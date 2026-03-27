@@ -16,6 +16,10 @@
   const similarityValue     = document.getElementById('similarity-value');
   const relevanceBar        = document.getElementById('relevance-bar');
   const relevanceValue      = document.getElementById('relevance-value');
+  const competitorsList     = document.getElementById('competitors-list');
+  const competitorsEmpty    = document.getElementById('competitors-empty');
+  const competitionSummary  = document.getElementById('competition-summary');
+  const competitionSummaryText = document.getElementById('competition-summary-text');
   const tabBtns        = document.querySelectorAll('.tab-btn');
 
   let allHints = [];
@@ -93,6 +97,9 @@
       relevanceValue.textContent = `${pct} / 100`;
     }
 
+    // Competitors
+    renderCompetitors(data.competitors ?? [], data.competition_summary ?? null);
+
     // Hints
     renderHints('all');
     activateFilter('all');
@@ -158,6 +165,37 @@
       <p class="hint-recommendation">${escHtml(hint.recommendation)}</p>
     `;
     return li;
+  }
+
+  function renderCompetitors(results, summary) {
+    if (summary) {
+      competitionSummaryText.textContent = summary;
+      competitionSummary.hidden = false;
+    } else {
+      competitionSummary.hidden = true;
+    }
+
+    competitorsList.innerHTML = '';
+    if (results.length === 0) {
+      competitorsEmpty.hidden = false;
+      competitorsList.hidden = true;
+      return;
+    }
+    competitorsEmpty.hidden = true;
+    competitorsList.hidden = false;
+    results.forEach(r => {
+      const li = document.createElement('li');
+      li.className = 'competitor-item';
+      li.innerHTML = `
+        <div class="competitor-header">
+          <a class="competitor-title" href="${escHtml(r.url)}" target="_blank" rel="noopener noreferrer">${escHtml(r.title || r.url)}</a>
+          ${r.score != null ? `<span class="competitor-score">${Math.round(r.score * 100)}%</span>` : ''}
+        </div>
+        <p class="competitor-url">${escHtml(r.url)}</p>
+        <p class="competitor-content">${escHtml(r.content)}</p>
+      `;
+      competitorsList.appendChild(li);
+    });
   }
 
   // ── Tab buttons ────────────────────────────────────────────────────────────

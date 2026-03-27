@@ -15,6 +15,7 @@ import json
 import logging
 import os
 from typing import Any
+from tavily import TavilyClient
 
 import httpx
 
@@ -27,10 +28,29 @@ logger = logging.getLogger(__name__)
 DEFAULT_URL   = os.getenv("LLM_API_URL",  "https://api.openai.com/v1/chat/completions")
 DEFAULT_KEY   = os.getenv("LLM_API_KEY",  "")
 DEFAULT_MODEL = os.getenv("LLM_MODEL",    "gpt-4o-mini")
+TAVILY_KEY = os.getenv("TAVILY_API_KEY", "")
 
 USER_ROLE   = "user"
 SYSTEM_ROLE = "system"
 AVAILABLE_ROLES = [USER_ROLE, SYSTEM_ROLE]
+
+
+RECOMMENDATION_PROMPT = '''
+You are an expert Search Engine Optimization (SEO) Consultant. You are helping a client optimize their site contents to improve their search engine ranking for a specific search. 
+
+Your client's web site is {url}.
+
+Here is the web search that your client seeks your help with.
+
+Search: {search}
+
+You performed this search and came up with the following top results:
+
+{search_results}
+
+Your task is to provide 3-5 concise insights for your client: what are these sites doing that makes them score so well for this search?  Please keep your answer brief and to the point, your client is looking for takeaways they can immediately use to improve their own rank.
+
+'''
 
 
 # ---------------------------------------------------------------------------
@@ -82,10 +102,11 @@ async def get_completions(
         The assistant message content string, or None on error.
     """
     headers = {
-        "Content-Type":  "application/json",
-        "Accept":        "application/json",
-        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        "Accept":       "application/json",
     }
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
     payload = {"model": model, "messages": messages}
 
     try:
@@ -104,45 +125,36 @@ async def get_completions(
         return None
 
 
-async def get_embeddings(
-    lines: list[str],
-    *,
-    api_key: str = DEFAULT_KEY,
-    url: str = os.getenv("LLM_EMBEDDINGS_URL", "https://api.openai.com/v1/embeddings"),
-    model: str = os.getenv("LLM_EMBEDDINGS_MODEL", "text-embedding-3-small"),
-    chunk_size: int = 25,
-    timeout: int = 30,
-) -> list[list[float]]:
+
+async def search(query: str) -> list[dict]:
     """
-    Generate embeddings for *lines* using the provider's embeddings endpoint.
-
-    Sends requests in chunks of *chunk_size* to avoid hitting payload limits.
-
-    Returns:
-        A list of embedding vectors (one per input line), or an empty list on error.
+    Search for *query* via Tavily and return a list of result dicts, each with
+    keys: url, title, content, score.  Returns an empty list on error.
     """
-    headers = {
-        "Content-Type":  "application/json",
-        "Accept":        "application/json",
-        "Authorization": f"Bearer {api_key}",
-    }
-    embeddings: list[list[float]] = []
-
+    import asyncio
     try:
-        async with httpx.AsyncClient(timeout=timeout) as client:
-            for chunk in [lines[i:i + chunk_size] for i in range(0, len(lines), chunk_size)]:
-                response = await client.post(
-                    url,
-                    headers=headers,
-                    json={"model": model, "input": chunk},
-                )
-                if response.status_code != 200:
-                    logger.error("Embeddings API returned %s", response.status_code)
-                    continue
-                data = json.loads(response.text)
-                embeddings.extend(item["embedding"] for item in data["data"])
+        tavily_client = TavilyClient(api_key=TAVILY_KEY)
+        response = await asyncio.to_thread(
+            tavily_client.search, query, search_depth="fast"
+        )
+        return [
+            {
+                "url":     r.get("url", ""),
+                "title":   r.get("title", ""),
+                "content": r.get("content", ""),
+                "score":   r.get("score"),
+            }
+            for r in response.get("results", [])
+        ]
+    except Exception as err:
+        logger.error("Couldn't complete search request: %s", err)
+        return []
+    
 
-    except Exception as exc:
-        logger.exception("get_embeddings failed: %s", exc)
-
-    return embeddings
+async def explain_relevance(query: str, url: str, search_results: list[dict]) -> str:
+    return await get_completions(
+        messages=[
+            system_message(RECOMMENDATION_PROMPT.format(url=url, search=query, search_results=str(search_results))),
+            user_message("How do these sites perform so well for this search?")
+        ]
+    )

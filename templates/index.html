@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SEO Demo</title>
+  <title>SimSEO</title>
   <link rel="stylesheet" href="/static/css/style.css" />
 </head>
 <body>
   <header>
-    <h1>SEO Demo</h1>
-    <p class="tagline">Enter a website URL and your target search query to get actionable SEO hints.</p>
+    <h1>SimSEO</h1>
+    <p class="tagline">See your page through a search engine's eyes.</p>
   </header>
 
   <main>
@@ -58,7 +58,8 @@
       <div class="card" id="detail-card">
         <div id="tab-bar">
           <button class="tab-btn active" data-tab="hints">Hints</button>
-          <button class="tab-btn" data-tab="ai">AI</button>
+          <button class="tab-btn" data-tab="ai">Similarity Metrics</button>
+          <button class="tab-btn" data-tab="competition">AI</button>
           <button class="tab-btn" data-tab="preview">Page Preview</button>
         </div>
 
@@ -118,6 +119,16 @@
               </div>
             </dl>
           </div>
+        </div>
+
+        <div id="tab-competition" class="tab-panel" hidden>
+          <div id="competition-summary" class="competition-summary" hidden>
+            <h3>Key Takeaways</h3>
+            <p id="competition-summary-text"></p>
+          </div>
+          <h3 class="competitors-heading">Top Search Results</h3>
+          <ul id="competitors-list" class="competitors-list"></ul>
+          <p id="competitors-empty" class="coming-soon" hidden>No results found.</p>
         </div>
 
         <div id="tab-preview" class="tab-panel" hidden>

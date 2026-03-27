@@ -7,7 +7,6 @@ import httpx
 
 from services.llm import (
     get_completions,
-    get_embeddings,
     system_message,
     user_message,
     SYSTEM_ROLE,
@@ -98,60 +97,3 @@ async def test_get_completions_exception_returns_none():
     assert result is None
 
 
-# ---------------------------------------------------------------------------
-# get_embeddings
-# ---------------------------------------------------------------------------
-
-def _embeddings_body(vectors: list[list[float]]) -> dict:
-    return {"data": [{"embedding": v} for v in vectors]}
-
-
-@pytest.mark.asyncio
-async def test_get_embeddings_returns_vectors():
-    vectors = [[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]]
-    mock_client = AsyncMock()
-    mock_client.__aenter__ = AsyncMock(return_value=mock_client)
-    mock_client.__aexit__ = AsyncMock(return_value=False)
-    mock_client.post = AsyncMock(return_value=_mock_response(200, _embeddings_body(vectors)))
-
-    with patch("services.llm.httpx.AsyncClient", return_value=mock_client):
-        result = await get_embeddings(["text one", "text two"], api_key="key")
-
-    assert result == vectors
-
-
-@pytest.mark.asyncio
-async def test_get_embeddings_non_200_returns_empty():
-    mock_client = AsyncMock()
-    mock_client.__aenter__ = AsyncMock(return_value=mock_client)
-    mock_client.__aexit__ = AsyncMock(return_value=False)
-    mock_client.post = AsyncMock(return_value=_mock_response(500, {}))
-
-    with patch("services.llm.httpx.AsyncClient", return_value=mock_client):
-        result = await get_embeddings(["text"], api_key="key")
-
-    assert result == []
-
-
-@pytest.mark.asyncio
-async def test_get_embeddings_chunking():
-    """Verify that more than chunk_size inputs trigger multiple API calls."""
-    vectors = [[float(i)] for i in range(6)]
-    responses = [
-        _mock_response(200, _embeddings_body(vectors[:3])),
-        _mock_response(200, _embeddings_body(vectors[3:])),
-    ]
-    mock_client = AsyncMock()
-    mock_client.__aenter__ = AsyncMock(return_value=mock_client)
-    mock_client.__aexit__ = AsyncMock(return_value=False)
-    mock_client.post = AsyncMock(side_effect=responses)
-
-    with patch("services.llm.httpx.AsyncClient", return_value=mock_client):
-        result = await get_embeddings(
-            ["a", "b", "c", "d", "e", "f"],
-            api_key="key",
-            chunk_size=3,
-        )
-
-    assert result == vectors
-    assert mock_client.post.call_count == 2

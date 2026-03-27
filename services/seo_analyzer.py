@@ -15,8 +15,9 @@ import httpx
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 
-from models.seo import AnalyzeResponse, SEOHint
+from models.seo import AnalyzeResponse, CompetitorResult, SEOHint
 from services.ai import compute_similarity, compute_relevance_score
+from services.llm import explain_relevance, search
 
 logger = logging.getLogger(__name__)
 
@@ -44,9 +45,18 @@ async def analyze(url: str, search_query: str) -> AnalyzeResponse:
         )
         return hints, _compute_score(hints), similarity, rel_score
 
-    (hints, score, semantic_similarity, relevance_score), page_image = await asyncio.gather(
-        _run_checks(),
-        get_page_image(url),
+    (hints, score, semantic_similarity, relevance_score), page_image, competitor_dicts = (
+        await asyncio.gather(
+            _run_checks(),
+            get_page_image(url),
+            search(search_query),
+        )
+    )
+
+    competition_summary = await explain_relevance(
+        query=search_query,
+        url=url,
+        search_results=competitor_dicts,
     )
 
     return AnalyzeResponse(
@@ -57,6 +67,8 @@ async def analyze(url: str, search_query: str) -> AnalyzeResponse:
         page_image=page_image,
         semantic_similarity=semantic_similarity,
         relevance_score=relevance_score,
+        competitors=[CompetitorResult(**r) for r in competitor_dicts],
+        competition_summary=competition_summary,
     )
 
 
