@@ -14,6 +14,8 @@
   const scoreThumbnail      = document.getElementById('score-thumbnail');
   const similarityBar       = document.getElementById('similarity-bar');
   const similarityValue     = document.getElementById('similarity-value');
+  const relevanceBar        = document.getElementById('relevance-bar');
+  const relevanceValue      = document.getElementById('relevance-value');
   const tabBtns        = document.querySelectorAll('.tab-btn');
 
   let allHints = [];
@@ -79,8 +81,16 @@
     if (data.semantic_similarity != null) {
       const pct = Math.round(data.semantic_similarity * 100);
       similarityBar.style.width = `${pct}%`;
-      similarityBar.className = 'ai-metric-bar ' + scoreClass(pct);
+      similarityBar.className = 'ai-metric-bar ' + aiScoreClass(pct);
       similarityValue.textContent = `${pct} / 100`;
+    }
+
+    // Relevance score
+    if (data.relevance_score != null) {
+      const pct = Math.round(data.relevance_score * 100);
+      relevanceBar.style.width = `${pct}%`;
+      relevanceBar.className = 'ai-metric-bar ' + aiScoreClass(pct);
+      relevanceValue.textContent = `${pct} / 100`;
     }
 
     // Hints
@@ -151,13 +161,20 @@
   }
 
   // ── Tab buttons ────────────────────────────────────────────────────────────
+  function activateTab(tabName) {
+    tabBtns.forEach(b => b.classList.toggle('active', b.dataset.tab === tabName));
+    document.querySelectorAll('.tab-panel').forEach(p => { p.hidden = true; });
+    document.getElementById(`tab-${tabName}`).hidden = false;
+  }
+
   tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      tabBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.querySelectorAll('.tab-panel').forEach(p => { p.hidden = true; });
-      document.getElementById(`tab-${btn.dataset.tab}`).hidden = false;
-    });
+    btn.addEventListener('click', () => activateTab(btn.dataset.tab));
+  });
+
+  document.getElementById('score-thumbnail-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    activateTab('preview');
+    document.getElementById('tab-preview').scrollIntoView({ behavior: 'smooth' });
   });
 
   // ── Filter buttons ─────────────────────────────────────────────────────────
@@ -179,8 +196,55 @@
     submitBtn.disabled = on;
   }
 
+  const HTTP_TIPS = {
+    400: "The server couldn't understand the request — it may be malformed or missing required data.",
+    401: "Authentication is required. You need to log in before accessing this resource.",
+    403: "The server understood your request but refused to fulfill it — usually because you're not logged in, your session expired, or you don't have the right permissions.",
+    404: "The page wasn't found. The URL may be wrong, or the page may have been moved or deleted.",
+    405: "The request method isn't allowed for this URL (e.g. the server only accepts GET requests here).",
+    408: "The server timed out waiting for the request. Try again — it may be a temporary network issue.",
+    410: "This page is permanently gone and won't be coming back.",
+    429: "Too many requests — the server is rate-limiting you. Wait a moment before trying again.",
+    500: "Something went wrong on the server. This is the site's problem, not yours.",
+    502: "The server received an invalid response from an upstream service. Usually temporary.",
+    503: "The server is temporarily unavailable — it may be down for maintenance or overloaded.",
+    504: "The server didn't get a response in time from an upstream service. Usually temporary.",
+  };
+
   function showError(msg) {
-    errorBanner.textContent = `Error: ${msg}`;
+    const match = msg.match(/\b([45]\d{2})\b/);
+    const tip   = match ? HTTP_TIPS[parseInt(match[1], 10)] : null;
+
+    errorBanner.innerHTML = '';
+
+    const text = document.createElement('span');
+    text.textContent = `Error: ${msg}`;
+    errorBanner.appendChild(text);
+
+    if (tip) {
+      const wrap = document.createElement('span');
+      wrap.className = 'error-tip-wrap';
+
+      const icon = document.createElement('button');
+      icon.className = 'error-tip-icon';
+      icon.setAttribute('aria-label', 'What does this mean?');
+      icon.textContent = 'i';
+
+      const tooltip = document.createElement('span');
+      tooltip.className = 'error-tip-tooltip';
+      tooltip.textContent = tip;
+
+      icon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        tooltip.classList.toggle('visible');
+      });
+      document.addEventListener('click', () => tooltip.classList.remove('visible'), { once: false });
+
+      wrap.appendChild(icon);
+      wrap.appendChild(tooltip);
+      errorBanner.appendChild(wrap);
+    }
+
     errorBanner.hidden = false;
   }
 
@@ -192,6 +256,12 @@
   function scoreClass(n) {
     if (n >= 80) return 'good';
     if (n >= 50) return 'average';
+    return 'poor';
+  }
+
+  function aiScoreClass(n) {
+    if (n > 70) return 'good';
+    if (n > 50) return 'average';
     return 'poor';
   }
 

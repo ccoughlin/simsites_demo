@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 
 from models.seo import AnalyzeResponse, SEOHint
-from services.ai import compute_similarity
+from services.ai import compute_similarity, compute_relevance_score
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ async def analyze(url: str, search_query: str) -> AnalyzeResponse:
     response.raise_for_status()
     html = response.text
 
-    async def _run_checks() -> tuple[list[SEOHint], int, float | None]:
+    async def _run_checks() -> tuple[list[SEOHint], int, float | None, float | None]:
         soup = BeautifulSoup(html, 'html.parser')
         hints: list[SEOHint] = []
         hints += _check_title(soup, search_query)
@@ -37,10 +37,14 @@ async def analyze(url: str, search_query: str) -> AnalyzeResponse:
         hints += _check_images(soup)
         hints += _check_canonical(soup, url)
         hints += _check_structured_data(soup)
-        similarity = await asyncio.to_thread(compute_similarity, soup.get_text(), search_query)
-        return hints, _compute_score(hints), similarity
+        page_text = soup.get_text()
+        similarity, rel_score = await asyncio.gather(
+            asyncio.to_thread(compute_similarity, page_text, search_query),
+            asyncio.to_thread(compute_relevance_score, page_text, search_query),
+        )
+        return hints, _compute_score(hints), similarity, rel_score
 
-    (hints, score, semantic_similarity), page_image = await asyncio.gather(
+    (hints, score, semantic_similarity, relevance_score), page_image = await asyncio.gather(
         _run_checks(),
         get_page_image(url),
     )
@@ -52,6 +56,7 @@ async def analyze(url: str, search_query: str) -> AnalyzeResponse:
         hints=hints,
         page_image=page_image,
         semantic_similarity=semantic_similarity,
+        relevance_score=relevance_score,
     )
 
 
@@ -174,6 +179,8 @@ def _check_headings(soup: BeautifulSoup, query: str) -> list[SEOHint]:
     for tag in headings:
         overlap = _word_overlap(tag.get_text(strip=True), query)
         overlaps.append(len(overlap))
+    if not overlaps:
+        return hints
     avg_overlap = sum(overlaps) / len(overlaps)
     if avg_overlap < 1:
         hints.append(SEOHint(

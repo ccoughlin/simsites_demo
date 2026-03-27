@@ -44,7 +44,9 @@
     <section id="results-section" hidden>
       <div class="score-card card">
         <div id="score-thumbnail-wrap" hidden>
-          <img id="score-thumbnail" src="" alt="Page thumbnail" />
+          <a id="score-thumbnail-link" href="#tab-preview" aria-label="View page preview">
+            <img id="score-thumbnail" src="" alt="Page thumbnail" />
+          </a>
         </div>
         <div id="score-text">
           <h2>SEO Score</h2>
@@ -73,7 +75,7 @@
         <div id="tab-ai" class="tab-panel" hidden>
           <div class="ai-metric">
             <h3>Semantic Similarity</h3>
-            <p class="ai-metric-description">How closely the page content relates to your search query.</p>
+            <p class="ai-metric-description">Does any part of the page relate to the query?</p>
             <div class="ai-metric-bar-wrap">
               <div id="similarity-bar" class="ai-metric-bar"></div>
             </div>
@@ -81,15 +83,38 @@
             <dl class="similarity-legend">
               <div class="similarity-legend-row">
                 <dt>0</dt>
-                <dd>The page contents and the query are completely unrelated.</dd>
+                <dd>No part of the page appears related to the query.</dd>
               </div>
               <div class="similarity-legend-row">
                 <dt>50</dt>
-                <dd>The page contents and the query are loosely related.</dd>
+                <dd>The page touches on the topic but only loosely.</dd>
               </div>
               <div class="similarity-legend-row">
                 <dt>100</dt>
-                <dd>The page contents and the query are identical in meaning.</dd>
+                <dd>The page is a near-perfect match for the query.</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="ai-metric">
+            <h3>Relevance Score</h3>
+            <p class="ai-metric-description">How much of the page is relevant to the query?</p>
+            <div class="ai-metric-bar-wrap">
+              <div id="relevance-bar" class="ai-metric-bar"></div>
+            </div>
+            <p id="relevance-value" class="ai-metric-value"></p>
+            <dl class="similarity-legend">
+              <div class="similarity-legend-row">
+                <dt>0</dt>
+                <dd>Virtually none of the page content relates to the query.</dd>
+              </div>
+              <div class="similarity-legend-row">
+                <dt>50</dt>
+                <dd>Roughly half the page is on-topic; the rest is unrelated.</dd>
+              </div>
+              <div class="similarity-legend-row">
+                <dt>100</dt>
+                <dd>Almost every section of the page is relevant to the query.</dd>
               </div>
             </dl>
           </div>
