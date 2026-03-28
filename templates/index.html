@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SimSEO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="/static/css/style.css" />
 </head>
 <body>
@@ -43,15 +46,26 @@
 
     <section id="results-section" hidden>
       <div class="score-card card">
+        <div class="score-ring-wrap">
+          <svg class="score-ring" viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="score-ring-bg" cx="60" cy="60" r="52" />
+            <circle class="score-ring-fill" cx="60" cy="60" r="52" id="score-ring-fill" />
+          </svg>
+          <div class="score-ring-inner">
+            <span class="score-number" id="score-display">--</span>
+          </div>
+        </div>
+
+        <div id="score-text">
+          <h2>SEO Score</h2>
+          <p id="score-verdict"></p>
+          <p id="score-label"></p>
+        </div>
+
         <div id="score-thumbnail-wrap" hidden>
           <a id="score-thumbnail-link" href="#tab-preview" aria-label="View page preview">
             <img id="score-thumbnail" src="" alt="Page thumbnail" />
           </a>
-        </div>
-        <div id="score-text">
-          <h2>SEO Score</h2>
-          <div id="score-display" class="score">--</div>
-          <p id="score-label"></p>
         </div>
       </div>
 

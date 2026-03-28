@@ -5,6 +5,8 @@
   const errorBanner = document.getElementById('error-banner');
   const resultsSection = document.getElementById('results-section');
   const scoreDisplay   = document.getElementById('score-display');
+  const scoreRingFill  = document.getElementById('score-ring-fill');
+  const scoreVerdict   = document.getElementById('score-verdict');
   const scoreLabel     = document.getElementById('score-label');
   const hintsList      = document.getElementById('hints-list');
   const filterBtns     = document.querySelectorAll('.filter-btn');
@@ -66,7 +68,12 @@
     // Score
     const score = data.score;
     scoreDisplay.textContent = score;
-    scoreDisplay.className = 'score ' + scoreClass(score);
+    const cls = scoreClass(score);
+    const circumference = 326.73; // 2π × 52
+    scoreRingFill.style.strokeDashoffset = circumference * (1 - score / 100);
+    scoreRingFill.className = 'score-ring-fill ' + cls;
+    scoreVerdict.textContent = scoreVerdict_text(score);
+    scoreVerdict.className = cls;
     scoreLabel.textContent = scoreDescription(score);
 
     // Screenshot
@@ -317,10 +324,16 @@
     return 'poor';
   }
 
+  function scoreVerdict_text(n) {
+    if (n >= 80) return 'Good standing';
+    if (n >= 50) return 'Needs improvement';
+    return 'Significant issues';
+  }
+
   function scoreDescription(n) {
-    if (n >= 80) return 'Great — minor tweaks needed.';
-    if (n >= 50) return 'Fair — several improvements recommended.';
-    return 'Poor — significant SEO issues found.';
+    if (n >= 80) return 'Minor tweaks may still help.';
+    if (n >= 50) return 'Several improvements recommended.';
+    return 'Significant SEO issues found.';
   }
 
   function escHtml(str) {
