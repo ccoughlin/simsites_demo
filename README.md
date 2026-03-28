@@ -2,7 +2,7 @@
 
 ![SimSEO demo](docs/simseo_demo.gif)
 
-SimSEO is a follow-up to [https://github.com/ccoughlin/simsites](simsites), centered around ideas about using LLMs in a vendor-agnostic way to aid in Search Engine Optimization (SEO).  SimSEO takes the basic approach and fleshes it out into a (hopefully) useful web app.
+SimSEO is a follow-up to [simsites](https://github.com/ccoughlin/simsites), centered around ideas about using LLMs in a vendor-agnostic way to aid in Search Engine Optimization (SEO).  SimSEO takes the basic approach and fleshes it out into a (hopefully) useful web app.
 
 Don't want to use AI? No problem! SimSEO also provides some simple checks and relevancy metrics.  These are all computed locally, so your data never leaves the system.  Later on if you decide you'd like to try the AI features out, BYOK (Bring Your Own Key) and you're good to go.
 
@@ -21,7 +21,7 @@ Don't want to use AI? No problem! SimSEO also provides some simple checks and re
 
 and
 
-`export LLM_API_KEY="<your LLM API KEY>`
+`export LLM_API_KEY="<your LLM API KEY>"`
 
 5.  Start the web app with e.g.
 
