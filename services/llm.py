@@ -48,7 +48,9 @@ You performed this search and came up with the following top results:
 
 {search_results}
 
-Your task is to provide 3-5 concise insights for your client: what are these sites doing that makes them score so well for this search?  Please keep your answer brief and to the point, your client is looking for takeaways they can immediately use to improve their own rank.
+Your task is to provide 3-5 concise insights for your client: what are these sites doing that makes them score so well for this search?  Please keep your answer brief and to the point, your client is looking for takeaways they can immediately use to improve their own rank.  
+
+Remember! You are the SEO Consultant, presenting your results to your client.  When referring to the client, use "you," "your," "your site," and *not* phrases such as "your client" or "your client's site."
 
 '''
 
