@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 
 from routers import seo
 
-app = FastAPI(title="SEO Demo", description="Analyze a website and get SEO improvement hints.")
+app = FastAPI(title="SimSEO", description="See your page through a search engine's eyes.")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
